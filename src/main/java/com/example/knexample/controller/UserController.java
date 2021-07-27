@@ -93,7 +93,6 @@ public class UserController {
 
     @GetMapping("/users")
     public ResponseEntity<List<User>> getAllUsers(@RequestParam(required = false) String username) {
-        System.out.println(username);
         try {
             List<User> users = new ArrayList<>();
 
@@ -125,16 +124,13 @@ public class UserController {
 
     @PutMapping("/users/{id}")
     public ResponseEntity<User> updateUser(@PathVariable("id") long id, @RequestBody User user) {
-        System.out.println(id);
         Optional<User> userData = userRepository.findById(id);
-        System.out.println(userData);
         if (userData.isPresent()) {
             User _user1 = userData.get();
             _user1.setUsername(user.getUsername());
             _user1.setFirstName(user.getFirstName());
             _user1.setLastName(user.getLastName());
             _user1.setEmail(user.getEmail());
-            System.out.println(_user1);
             return new ResponseEntity<>(userRepository.save(_user1), HttpStatus.OK);
         } else {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
@@ -150,4 +146,23 @@ public class UserController {
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+
+    @GetMapping("/users/{id}")
+    public ResponseEntity<User> getUserById(@PathVariable("id") long id) {
+        Optional<User> userData = userRepository.findById(id);
+
+        return userData.map(user -> new ResponseEntity<>(user, HttpStatus.OK)).orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
+    }
+
+    @DeleteMapping("/users")
+    public ResponseEntity<HttpStatus> deleteAllUsers() {
+        try {
+            userRepository.deleteAll();
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+
+    }
+
 }
