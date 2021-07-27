@@ -1,10 +1,13 @@
 package com.example.knexample.controller;
 
-import com.example.knexample.model.Data;
+import com.example.knexample.model.ManyToManyRel;
 import com.example.knexample.model.ManyUsersOneData;
 import com.example.knexample.model.User;
 import com.example.knexample.repository.DataRepository;
+import com.example.knexample.repository.ManyToManyRelRepository;
 import com.example.knexample.repository.ManyUsersOneDataRepository;
+//import com.example.knexample.repository.OrderItemRepository;
+//import com.example.knexample.repository.OrderRepository;
 import com.example.knexample.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -13,7 +16,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -26,6 +28,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -43,6 +46,15 @@ public class UserController {
 
     @Autowired
     ManyUsersOneDataRepository manyUsersOneDataRepository;
+
+    @Autowired
+    ManyToManyRelRepository manyToManyRelRepository;
+
+//    @Autowired
+//    OrderRepository orderRepository;
+//
+//    @Autowired
+//    OrderItemRepository orderItemRepository;
 
     private Sort.Direction getSortDirection(String direction) {
         if (direction.equals("asc")) {
@@ -184,15 +196,40 @@ public class UserController {
 //            Data data = new Data();
 //            data.setUser(_user);
 //            dataRepository.save(data);
-            System.out.println(user);
             ManyUsersOneData _user = new ManyUsersOneData();
             _user.setUsers(userRepository.findAllByEmail(user.getEmail()));
-            System.out.println(_user.toString());
             manyUsersOneDataRepository.save(_user);
             return new ResponseEntity<>(_user, HttpStatus.CREATED);
         } catch (Exception e) {
             return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+
+    @PostMapping("/users/many")
+    public ResponseEntity<ManyToManyRel> createManyToMany(@RequestBody User user) {
+        try {
+//            User _user = userRepository
+//                    .save(new User(user.getUsername(), user.getFirstName(), user.getLastName(), user.getEmail()));
+//            Data data = new Data();
+//            data.setUser(_user);
+//            dataRepository.save(data);
+            System.out.println(user);
+            ManyToManyRel _user = new ManyToManyRel();
+            _user.setProducts( new HashSet<>(userRepository.findAll()));
+            manyToManyRelRepository.save(_user);
+            return new ResponseEntity<>(_user, HttpStatus.CREATED);
+        } catch (Exception e) {
+            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+//    @PostMapping("/users/relations")
+//    public void createRelation(@RequestBody User user) {
+//        MToOne m = new MToOne();
+//        OToMany o = new OToMany();
+//
+//
+//
+//    }
 
 }
