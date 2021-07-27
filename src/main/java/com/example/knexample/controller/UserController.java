@@ -1,6 +1,10 @@
 package com.example.knexample.controller;
 
+import com.example.knexample.model.Data;
+import com.example.knexample.model.ManyUsersOneData;
 import com.example.knexample.model.User;
+import com.example.knexample.repository.DataRepository;
+import com.example.knexample.repository.ManyUsersOneDataRepository;
 import com.example.knexample.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -27,12 +31,18 @@ import java.util.Map;
 import java.util.Optional;
 
 @RestController
-@CrossOrigin(origins = "http://localhost:8081")
+//@CrossOrigin(origins = "http://localhost:8081")
 @RequestMapping("/api")
 public class UserController {
 
     @Autowired
     UserRepository userRepository;
+
+    @Autowired
+    DataRepository dataRepository;
+
+    @Autowired
+    ManyUsersOneDataRepository manyUsersOneDataRepository;
 
     private Sort.Direction getSortDirection(String direction) {
         if (direction.equals("asc")) {
@@ -163,6 +173,26 @@ public class UserController {
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
 
+    }
+
+
+    @PostMapping("/users/test")
+    public ResponseEntity<ManyUsersOneData> createUsers(@RequestBody User user) {
+        try {
+//            User _user = userRepository
+//                    .save(new User(user.getUsername(), user.getFirstName(), user.getLastName(), user.getEmail()));
+//            Data data = new Data();
+//            data.setUser(_user);
+//            dataRepository.save(data);
+            System.out.println(user);
+            ManyUsersOneData _user = new ManyUsersOneData();
+            _user.setUsers(userRepository.findAllByEmail(user.getEmail()));
+            System.out.println(_user.toString());
+            manyUsersOneDataRepository.save(_user);
+            return new ResponseEntity<>(_user, HttpStatus.CREATED);
+        } catch (Exception e) {
+            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
 }
